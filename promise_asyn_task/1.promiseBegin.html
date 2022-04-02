@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    // promise对象默认是pending状态的
+    console.log(new Promise((resolve, reject) => { }))
+
+    // resolve 用来改变promise对象的状态
+    console.log(new Promise((resolve, reject) => {
+        resolve()
+    }))
+
+
+    //////////////////////////// 对不同状态的promise调用then，回调的变化 //////////////////////////  
+
+    // 对resolved的promise调用then，会将then中的成功回调放到微队列中。（如果是reject，
+    // 则将失败回调放入微队列）
+    new Promise((resolve, reject) => {
+        // 注意，new promise中的代码是同步执行的
+        resolve("promise 1")
+    }).then(value => {
+        console.log(value)
+    })
+
+    // 对pending的promise调用then，回调不会放到队列中，直到promise的状态改变，
+    // 会将then中的相应状态的回调放到微队列中
+    new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("promise 2")
+        }, 2000)
+    }).then(value => {
+        console.log("2s 以后打印" + value)
+    })
+
+
+
+    //////////////////////////// then 的返回值 //////////////////////////  
+    // then 默认返回pending的promise，其状态由then中回调的执行结果决定
+
+    // then同步返回pending的promise
+    let promise4 = new Promise((resolve, reject) => {
+        resolve("promise 4")
+    }).then(value => {
+        return value;
+    }).then(value => {
+
+    })
+    console.log("promise4", promise4)
+
+    // then同步返回pending的promise，当then块中的回调（无论是成功回调还是失败回调）
+    // 被执行后，该promise的状态改变，默认变为resolved。如果有异常，则变为reject。
+    let promise3 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // 模拟网络请求
+            resolve("promise 3")
+        }, 100)
+    }).then(value => {
+        console.log("promise3 第一个 then")
+    }).then(value => {
+        console.log("promise 3 第二个 then")
+    }).then(value => {
+        console.log("promise 3 第三个 then")
+    })
+    // 上面的执行逻辑是：对resolved promise调then，将then的成功回调
+    // 放到微任务队列中，then同步返回一个pending的promise，于是第二个then什么也不做，
+    // 同步返回一个pending的promise。此时队列中只有一个回调。
+    // 第一个回调执行完后，第一个then返回的promise默认变为resolved，因此第二个then的
+    // 回调放到队列中，执行完后，第二个then返回的promise也默认变为resolved.
+
+    // 一连串的then返回一连串的pending promise，当头个promise变为resolved（请求返回），第一个then
+    // 的回调放到队列中，执行完后第一个pending promise变为resolved，第二个then的回调
+    // 放到队列中，执行完后第二个pending promise也变为resolved，第三个then的回调放到
+    // 队列中.....直到所有的promise变为resolved，所有的回调也执行完了。
+    // 可见then的回调是异步（相对主线程来说，都暂存在队列中）、顺序依次执行的，可以认为他们是同步
+    // 的，因为下一个pending promise的状态要由then的回调执行结果决定。
+
+    const image = new Image();
+    image.src = "./promise chain.drawio.png"
+    image.onload = () => {
+        document.body.appendChild(image)
+    }
+
+    console.log("main finished")
+
+</script>
+
+</html>

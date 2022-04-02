@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .greenbox {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            left: 0;
+            background-color: green;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+    <div id="greenbox" class="greenbox"></div>
+
+</body>
+
+<script>
+    function interval(callback, interval) {
+        // 调用setInterval后，定时器模块每隔interval往任务队列中抛一个
+        // 回调，这些回调将在main执行完毕后被轮询执行
+        let timerId = setInterval(() => {
+            callback(timerId);
+        }, interval)
+    }
+
+    interval((timerId) => {
+
+        for (let i = 0; i < 10000000; i++);
+        // console.log("hello")
+        const div = document.querySelector("#greenbox")
+        let boxLeftPos = parseInt(window.getComputedStyle(div).left)
+        console.log(boxLeftPos)
+        div.style.left = boxLeftPos + 10 + "px";
+        if (boxLeftPos >= 200) {
+            clearInterval(timerId)
+            interval((timerId2) => {
+                let width = parseInt(window.getComputedStyle(div).width)
+                div.style.width = width - 10 + "px"
+                if (width <= 20) {
+                    clearInterval(timerId2)
+                }
+            }, 30)
+        }
+
+    }, 30)
+
+    console.log("main finished")
+
+</script>
+
+</html>

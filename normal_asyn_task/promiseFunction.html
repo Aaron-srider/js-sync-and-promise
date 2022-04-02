@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+
+
+        // 使用函数将promise封装起来；与直接new Promise的区别是，有函数封装后，promise体中的同步代码不会立马
+        // 执行，而未封装时，promise体中的同步代码直接执行，这有时候不是想要的，比如想
+        // 封装一个网络请求的任务，只希望它在需要的时候被调用
+
+        // 使用函数封装promise，还能封装许多原始的js回调接口，解决他们的回调地狱问题
+
+        new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log("网络请求1完毕")
+            }, 1000)
+        })
+
+
+        function promiseTask() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    console.log("网络请求2完毕")
+                }, 1000)
+            })
+        }
+
+        promiseTask()
+
+
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    // 要点：then 回调中返回promise决定该then的返回promise 状态
+    let promise3 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // 模拟网络请求
+            resolve("promise 3")
+        }, 100)
+    }).then(value => {
+        console.log("promise3 第一个 then")
+    }).then(value => {
+        console.log("promise3 第二个 then")
+        // 执行完回调后默认使then返回的promise变为resolved，
+        // 在回调中反会相应状态的promise，改变then返回的promise的
+        // 状态。如果想要后面的then回调依赖前面的then回调，可以把条件
+        // 写在返回的promise中。最后一个返回promise的操作可以延时下一个then的执行。
+        return new Promise((resolve, reject) => {
+            reject();
+        })
+    }).then(value => {
+        console.log("promise 3 第三个 then")
+    }, () => {
+        console.log("promise 3 第二个 then 返回 reject promise")
+    })
+
+    console.log("main finished")
+</script>
+
+</html>

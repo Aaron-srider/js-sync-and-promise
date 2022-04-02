@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    function request(method, url) {
+        return new Promise((resolve, reject) => {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            // 网络请求模块在请求出结果的时候向队列中抛一个回调函数
+            // 注意，由于回调在主线程中执行，所以可以直接引用到主线程中的数据
+            xhr.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.response))
+                } else {
+                    reject(this.response)
+                }
+            }
+            xhr.onerror = function () {
+                reject(this)
+            }
+            xhr.send();
+        })
+    }
+
+    const promise1 = request("GET", "http://localhost:8080/student?name=wc")
+
+    const promise2 = request("GET", "http://localhost:8080/student?name=cc")
+
+
+
+
+    // promise.all 也返回一个pending promise，当且仅当所有promise
+    // 都resolved了，promise.all 返回的 promise 才变成resolved
+    // 只有有一个是reject，promise.all 返回的 promise 的也变成
+    // rejected.
+    Promise.all([promise1, promise2]).then(
+        value => {
+            console.log(value)
+        }
+    )
+
+    // 适合同时发送多个网络请求的情况，只有所有请求都到了才进行下一步操作
+</script>
+
+</html>

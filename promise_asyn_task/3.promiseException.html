@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    //////////////////// 第一种抛出异常的方式 ////////////////////
+    // 第一种抛出异常的方式
+    let promise3 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("promise 3")
+        }, 100)
+    }).then(value => {
+        console.log("promise3 第一个 then")
+        // 第一种，返回一个reject的promise
+        return new Promise((resolve, reject) => {
+            reject("promise3 第一个then 回调返回异常");
+        })
+    }).then(value => {
+        console.log("promise3 第二个 then")
+    }, err => {
+        console.log(err)
+    })
+
+    // 注意，上一个then没有处理异常的话，该then的返回promise将从pending
+    // 转为rejected
+    promise4 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("promise 4")
+        }, 100)
+    }).then(value => {
+        console.log("promise4 第一个 then")
+        // 第一种，返回一个reject的promise
+        return new Promise((resolve, reject) => {
+            reject("promise4 第一个then 回调返回异常");
+        })
+    }).then(value => {
+        console.log("promise4 第二个 then 不处理异常")
+    }).then(null, err => {
+        console.log(err)
+    })
+
+    //////////////////// 第二种抛出异常的方式 ////////////////////
+    // 第二种抛出异常的方式
+    promise5 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("promise 5")
+        }, 100)
+    }).then(value => {
+        console.log("promise5 第一个 then")
+        // 第一种，返回一个reject的promise
+        throw new Error("promise5 第一个then 回调返回异常");
+    }).then(value => {
+        console.log("promise5 第二个 then 不处理异常")
+    }, err => {
+        console.log(err)
+    })
+
+
+    //////////////////// 异常的处理 ////////////////////
+    // 第一种是用then的失败回调
+    // 第二种是用catch，catch可以看做是只有失败回调的then，他也
+    // 返回promise，一般不放在链式的中间，而是放在最后兜底，如果
+    // 前面的then全部没有处理异常的回调，最后一个catch(也就是专门
+    // 处理异常的then)来兜底（因为它一定有失败回调）。
+    // 这样的好处是，统一异常处理，而且中间如果有异常，后面的正常回调
+    // 都不执行，因为如果then没有处理异常的回调，返回的promise会变
+    // rejected，从而导致接下来的链上的promise都变rejected。
+    promise6 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("promise6 ")
+        }, 100)
+    }).then(value => {
+        console.log("promise6 第一个 then")
+        throw new Error("promise6 第一个then 回调返回异常");
+    }).then(value => {
+        console.log("promise6 第二个 then 不处理异常")
+    }).then(value => {
+        console.log("promise6 第三个 then 不处理异常")
+    }).catch(err => {
+        console.log(err)
+    })
+
+
+    const image = new Image();
+    image.src = "./promiseExceptionHandle.drawio.png"
+    image.onload = () => {
+        document.body.appendChild(image)
+    }
+
+    console.log("main finished")
+</script>
+
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+
+    function ajax(method, url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        // 网络请求模块在请求出结果的时候向队列中抛一个回调函数
+        // 注意，由于回调在主线程中执行，所以可以直接引用到主线程中的数据
+        xhr.onload = function () {
+            if (this.status == 200) {
+                callback(JSON.parse(this.response))
+            } else {
+                console.log("load error")
+            }
+        }
+        xhr.send();
+    }
+
+    // 请求后台数据时后一次请求的参数来自上一次请求，请求有明显的先后顺序，这时产生回调地狱。
+    // 第一个ajax往队列中加任务，主线程轮询时拿到主线程中执行，此时又往队列中加一个任务，再被主线程
+    // 轮询执行
+    ajax("GET", 'http://localhost:8080/student?name=wc', function (user) {
+        ajax("GET", 'http://localhost:8080/course?userid=' + user.id, function (course) {
+            console.log(course)
+        });
+    })
+
+
+    console.log("main finished")
+</script>
+
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+<script>
+    function loadImage(src) {
+        return new Promise((resolve, reject) => {
+            let image = new Image();
+
+            image.src = src
+            image.onload = function () {
+                resolve(image)
+            }
+            image.onerror = function () {
+                reject(this)
+            }
+        })
+    }
+
+    loadImage("http://www.baidu.com/fa vicon.ico")
+        .then(image => {
+            document.body.appendChild(image)
+        })
+        .catch(image => {
+            let div = document.createElement("div")
+            div.innerHTML = image.src + " NOT FOUND"
+            document.body.appendChild(div)
+        })
+</script>
+
+</html>

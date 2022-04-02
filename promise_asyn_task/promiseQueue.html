@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    // 利用 promise 实现任务队列，严格说不用实现，因为promise本来就是依赖js的队列机制
+    // 每个Promise和then链，在同步执行时都构建了一个pending的Promise链，通常是第一个then
+    // 的回调先进入微队列，因为首个promise一般都是resolved的。主线程执行完后，取出回调并执行，
+    // 依次改变Promise链上Promise的状态，因此回调依次入队。达到队列的效果。
+    // 总之，每个then回调都依次入队，依次执行，我们可以将其封装得更好使用。
+
+    // 版本1
+    new Promise((resolve, reject) => {
+        resolve()
+    }).then(value => {
+        console.log("第一个任务")
+    }).then(value => {
+        console.log("第二个任务")
+    })
+    // 执行到这里，任务队列中有一个回调
+
+
+    // 版本2
+    // 链式promise，扁平化处理
+    let promise = new Promise((resolve, reject) => {
+        resolve()
+    })
+    promise = promise.then(value => {
+        console.log("第一个任务")
+    })
+    promise = promise.then(value => {
+        console.log("第二个任务")
+    })
+    // 执行到这里，任务队列中有两个回调
+
+
+    // 版本3，使用for循环调用then，使then的个数更加灵活可控
+    let promise1 = Promise.resolve()
+    // 任务队列，可以指定任务数量
+    for (let i = 0; i < 10; i++) {
+        promise1 = promise1.then(value => {
+            console.log(`第${i}个任务`)
+        })
+    }
+    // 执行到这里，任务队列中有三个回调
+
+    function task1() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log("网络请求1完成")
+                resolve()
+            }, 1000)
+        })
+    }
+
+
+
+    // 模拟网络请求任务，每个请求任务都要经过1s（1s后promise变为resolved）
+    let netTasks = [
+        function () {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    console.log("网络请求1完成")
+                    resolve()
+                }, 1000)
+            })
+        }, function () {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    console.log("网络请求2完成")
+                    resolve()
+                }, 1000)
+            })
+        }
+    ]
+
+    // 版本4，任务队列中的每个任务是一个promise，在执行完每个then回调任务后，好要等
+    // return 的Promise的状态变为resolved才能接下去链式调用。比如执行完then回调的同步代码
+    // 后还要等到网络请求到来才进入下一个then。
+    let promise2 = Promise.resolve()
+    for (let i = 0; i < netTasks.length; i++) {
+        promise2 = promise2.then(value => {
+            return netTasks[i]()
+        })
+    }
+
+
+
+
+    console.log("main finished")
+
+
+</script>
+
+</html>

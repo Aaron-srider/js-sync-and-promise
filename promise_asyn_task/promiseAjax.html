@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+<script>
+    function request(method, url) {
+        return new Promise((resolve, reject) => {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            // 网络请求模块在请求出结果的时候向队列中抛一个回调函数
+            // 注意，由于回调在主线程中执行，所以可以直接引用到主线程中的数据
+            xhr.onload = function () {
+                if (this.status == 200) {
+                    resolve(JSON.parse(this.response))
+                } else {
+                    reject(this.response)
+                }
+            }
+            xhr.onerror = function () {
+                reject(this)
+            }
+            xhr.send();
+        })
+    }
+
+    request("GET", 'http://localhost:8080/student?name=wc')
+        .then(resp => {
+            console.log(resp)
+            return resp
+        })
+        .then(user => {
+            return request("GET", 'http://localhost:8080/course?userid=' + user.id)
+        }).then(course => {
+            console.log(course)
+        })
+
+
+
+</script>
+
+</html>
